@@ -13,7 +13,13 @@ library(flexdashboard)
 Column {data-width=650}
 -----------------------------------------------------------------------
 
-### Chart A
+### Introduction
+
+Track 1.
+I found this track on a royalty free music website, called epidemicsound. I got a free description and that is how I could download the music. I searched specifically for a hardstyle song, because I listen to hardstyle a lot and the music means a lot to me, so that is why I chose this song.
+Track 2.
+I also found this track on epidemicsoun, a royalty free music website. With the free trial I could get an account to download music. I searched for trance music, because I really like trance and I am going to a trance festival this weekend, so that is why I am interested in this genre. 
+
 
 ```{r}
 
@@ -22,13 +28,13 @@ Column {data-width=650}
 Column {data-width=350}
 -----------------------------------------------------------------------
 
-### Chart B
+### Visualisation
 
 ```{r}
 
 ```
 
-### Chart C
+### Conclusion
 
 ```{r}
 
