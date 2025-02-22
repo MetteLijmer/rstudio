@@ -1,5 +1,6 @@
+
 ---
-title: "Untitled"
+title: "Portfolio Mette"
 output: 
   flexdashboard::flex_dashboard:
     orientation: columns
@@ -32,11 +33,26 @@ Column {data-width=350}
 
 ```{r}
 
+# Laad de benodigde libraries
+library(ggplot2)
+
+# Laad je muziekdata (zorg ervoor dat het pad naar je CSV correct is)
+music_data <- read.csv("/Users/mette/Downloads/compmus2025 2.csv")
+
+# Voeg een nieuwe kolom toe voor de kleur van de balken
+music_data$highlight <- ifelse(music_data$filename %in% c("mette-l-1", "mette-l-2"), "highlight", "normal")
+
+# Maak de grafiek
+ggplot(music_data, aes(x = filename, y = tempo, fill = highlight)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  labs(title = "Tempo per Track", y = "Tempo (BPM)", x = "Track") +
+  theme_minimal() +
+  scale_fill_manual(values = c("normal" = "lightgray", "highlight" = "red"))  # Kleur je tracks in het rood
+
 ```
 
 ### Conclusion
 
-```{r}
+In the visualisation you can see the tempo of my tracks compared to the rest of the tracks. So you can see that the tempo of the tracks is around 100 bpm, that is around the average if you look at the visualisation. 
 
-```
 
