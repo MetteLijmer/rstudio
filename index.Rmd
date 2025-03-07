@@ -11,6 +11,10 @@ output:
 library(flexdashboard)
 library(tidyverse)
 source("compmus.R")
+library(tidyverse)
+library(ggplot2)
+library(viridis)
+library(devtools)
 
 ```
 
@@ -26,6 +30,26 @@ I also found this track on epidemicsoun, a royalty free music website. With the 
 
 
 ```{r}
+# Laad de benodigde libraries
+library(tidyverse)
+
+library(viridis)
+
+# Stap 1: Normaliseer de chroma data
+chroma_data <- "features/mette-l-1.json" |> 
+  compmus_chroma(norm = "identity")  # Normaliseer de chroma data eerst
+
+# Stap 2: Maak de keygram of chordogram door templates te matchen
+result <- chroma_data |> 
+  compmus_match_pitch_templates(chord_templates, norm = "identity", distance = "cosine")
+
+# Stap 3: Plot de resultaten (keygram of chordogram)
+ggplot(result, aes(x = time, y = name, fill = d)) + 
+  geom_tile() +               # Gebruik geom_tile voor een chordogram
+  scale_fill_viridis_c(guide = "none") + 
+  labs(x = "Time (s)", y = "Template", fill = NULL) +
+  theme_classic()
+
 
 ```
 
@@ -76,4 +100,10 @@ ls()
   scale_fill_viridis_c(guide = "none") +               # Change the colours?
   labs(x = "Time (s)", y = NULL, fill = NULL) +
   theme_classic()      
+```
+### New Visualisations
+
+```{r}
+
+
 ```
