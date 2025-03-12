@@ -50,7 +50,12 @@ ggplot(result, aes(x = time, y = name, fill = d)) +
   labs(x = "Time (s)", y = "Template", fill = NULL) +
   theme_classic()
 
-
+"features/mette-l-1.json" |>
+  compmus_energy_novelty() |> 
+  ggplot(aes(t, novelty)) +
+  geom_line() +
+  theme_minimal() +
+  labs(x = "Time (s)", y = "Energy Novelty")
 ```
 
 Column {data-width=350}
