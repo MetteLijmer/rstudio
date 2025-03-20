@@ -8,6 +8,7 @@ output:
 --- 
 
 ```{r setup, include=FALSE}
+library(shiny)
 library(flexdashboard)
 library(tidyverse)
 source("compmus.R")
@@ -17,6 +18,31 @@ library(viridis)
 library(devtools)
 library(ggdendro)
 library(heatmaply)
+
+selectInput("page", "Jump to section:", 
+            choices = c("Background" = "background",
+                        "Track-Level Features" = "track_features",
+                        "Chroma Features" = "chroma",
+                        "Loudness" = "loudness",
+                        "Timbre Features" = "timbre",
+                        "Temporal Features" = "temporal",
+                        "Clustering & Classification" = "clustering",
+                        "Contribution" = "contribution"))
+
+observeEvent(input$page, {
+  updateTabsetPanel(session, "tabs", selected = input$page)
+})
+tabsetPanel(id = "tabs",
+            tabPanel("Background", "Hier komt de background info."),
+            tabPanel("Track-Level Features", "Hier analyseer je de features."),
+            tabPanel("Chroma Features", "Analyse van chroma."),
+            tabPanel("Loudness", "Analyse van loudness."),
+            tabPanel("Timbre Features", "Analyse van timbre."),
+            tabPanel("Temporal Features", "Analyse van ritme."),
+            tabPanel("Clustering & Classification", "Clustering en regressie."),
+            tabPanel("Contribution", "Conclusies en lessen.")
+)
+
 
 ```
 
