@@ -591,6 +591,9 @@ In the first graph, you can see how well the model distinguishes between AI and 
 **Random forest**
 The second graph, the random forest graph, shows which features contribute most to the classification. In the graph, you can see that arousal and instrumentalness have the highest values and are therefore the most important for classifying the tracks as AI or non-AI. Next come danceability and valence. The feature that is least important for classification is tempo, which makes sense because tempo doesn't really affect whether a track is AI or not. AI tracks can have any tempo.
 
+
+..
+
 **Scatterplot**
 
 The last graph is a scatterplot of valence vs. arousal. Each dot represents a track, colored based on AI/non-AI. The x-axis is valence, and the y-axis is arousal. The dot size represents the tempo of the music. In the graph, you can see that the yellow dots are more spread out, while the purple dots are more concentrated in the middle and less spread out. This may suggest that AI music varies less in extreme values of these features and tends to have more average properties for arousal and valence. This could mean that AI music is more general and does not have many extreme characteristics.
