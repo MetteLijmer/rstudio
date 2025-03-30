@@ -1,0 +1,27 @@
+/* Zorg ervoor dat de titel "Mette's Portfolio" weer zichtbaar is en rood */
+.navbar-brand {
+  color: white !important;  /* Rood voor de titel van de website */
+  font-size: 30px;  /* Pas de grootte aan indien gewenst */
+}
+
+/* Verander de kleur van de navigatiebalk naar rood */
+.navbar {
+  background-color: #ff0000 !important; /* Rood voor de navbar */
+}
+
+/* Verander de kleur van de tekst op de knoppen naar wit */
+.navbar .navbar-nav > li > a {
+  color: white !important;  /* Zorg ervoor dat de tekst wit is */
+}
+
+/* Zorg ervoor dat de tekst en achtergrond van de knop veranderen naar lichtrood als je er met de muis overheen gaat */
+.navbar .navbar-nav > li > a:hover {
+  background-color: #ff9999 !important;  /* Lichtrood bij hover */
+  color: black !important;  /* Zwarte tekst bij hover */
+}
+
+/* Zorg ervoor dat de tekstkleur van de knoppen verandert naar zwart als ze geselecteerd zijn (actief) */
+.navbar .navbar-nav > li.active > a {
+  background-color: #ff9999 !important;  /* Lichtrood achtergrond als geselecteerd */
+  color: black !important;  /* Zwarte tekst op geselecteerde knop */
+}

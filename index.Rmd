@@ -1,120 +1,632 @@
 
----
-title: "Portfolio Mette"
-output: 
-  flexdashboard::flex_dashboard:
-    orientation: columns
-    vertical_layout: fill
---- 
 
-```{r setup, include=FALSE}
+---
+title: "Mette's Portfolio"
+output: 
+  flexdashboard::flex_dashboard
+runtime: shiny
+css: "style.css"
+---
+
+```{r}
+tags$head(
+  tags$style(HTML("
+    /* Verander de kleur van de navigatiebalk naar rood */
+    .navbar {
+      background-color: #ff0000;  /* Rood */
+    }
+    .navbar .navbar-nav > li > a {
+      color: white !important;  /* Zorg ervoor dat de tekst wit is */
+    }
+    .navbar .navbar-brand {
+      color: white !important;  /* Zorg ervoor dat de merknaam wit is */
+    }
+  "))
+)
+
+options(repos = c(CRAN = "https://cran.rstudio.com/")) 
+install.packages("shinyjs")
+
+library(shinyjs)
 library(shiny)
 library(flexdashboard)
-library(tidyverse)
-source("compmus.R")
-library(tidyverse)
 library(ggplot2)
 library(viridis)
+source("compmus.R")
+library(tidyverse)
+library(rlang)
+library(tidymodels)
+library(kknn)
+library(shiny.router)
 library(devtools)
 library(ggdendro)
 library(heatmaply)
+library(shinyjs)  # Voeg shinyjs toe voor JavaScript-functionaliteit
 
-selectInput("page", "Jump to section:", 
-            choices = c("Background" = "background",
-                        "Track-Level Features" = "track_features",
-                        "Chroma Features" = "chroma",
-                        "Loudness" = "loudness",
-                        "Timbre Features" = "timbre",
-                        "Temporal Features" = "temporal",
-                        "Clustering & Classification" = "clustering",
-                        "Contribution" = "contribution"))
+# Definieer de verschillende pagina's
+# Audio-element voor muziekspeler
 
-observeEvent(input$page, {
-  updateTabsetPanel(session, "tabs", selected = input$page)
-})
-tabsetPanel(id = "tabs",
-            tabPanel("Background", "Hier komt de background info."),
-            tabPanel("Track-Level Features", "Hier analyseer je de features."),
-            tabPanel("Chroma Features", "Analyse van chroma."),
-            tabPanel("Loudness", "Analyse van loudness."),
-            tabPanel("Timbre Features", "Analyse van timbre."),
-            tabPanel("Temporal Features", "Analyse van ritme."),
-            tabPanel("Clustering & Classification", "Clustering en regressie."),
-            tabPanel("Contribution", "Conclusies en lessen.")
+tags$div(
+  # Titel voor het eerste audio-element
+  tags$h3("Track 1: Hardstyle Song"),
+  # Audio-element 1
+  tags$audio(
+    id = "audio_player_1",  
+    src = "www/mette-l-1.mp3",  # Correct pad naar het bestand in de www map
+    type = "audio/mp3",  
+    controls = TRUE  
+  ),
+  
+  # Titel voor het tweede audio-element
+  tags$h3("Track 2: Trance Song"),
+  # Audio-element 2
+  tags$audio(
+    id = "audio_player_2",  
+    src = "www/mette-l-2.mp3",  # Correct pad naar het bestand in de www map
+    type = "audio/mp3",  
+    controls = TRUE  
+  )
 )
 
 
 ```
 
-Column {data-width=650}
------------------------------------------------------------------------
+# Background pagina
 
-### Introduction
+**Introduction**
 
-Track 1.
-I found this track on a royalty free music website, called epidemicsound. I got a free description and that is how I could download the music. I searched specifically for a hardstyle song, because I listen to hardstyle a lot and the music means a lot to me, so that is why I chose this song.
-Track 2.
-I also found this track on epidemicsoun, a royalty free music website. With the free trial I could get an account to download music. I searched for trance music, because I really like trance and I am going to a trance festival this weekend, so that is why I am interested in this genre. 
+Welcome to my portfolio! In this portfolio I am going to show you the analysis I have done on two tracks I have chosen. For the analysis I have chosen a hardstyle track and a trance track. For the portfolio I specifically wanted these two different music styles, because I am curious about the differences and similarities of these two music styles. I really love both of these genres and I feel like they have some similarities, for example the sound and the energy of the genres can feel very similar in my opinion. I also think that the focus on the melody, but also the hard drop after the melody is something that these genres can have in common. At least, that is what I feel and think when I listen to these genres, but I am really curious if that also can be concluded when looking at the analysis of these tracks. So in this portfolio I am going to look and analyse different aspects of both tracks and compare them to each other, but also to other tracks of the class corpus. In this portfolio I hope to discover the similarities and differences these two music genres have. 
+
+**Music Selection**
+
+I found the tracks on a website called ‘Epidemic Sound. This is a website for royalty free music. I took a free description so that I could download the music. 
+
+
+**Track 1**
+
+At first I searched for a hardstyle song and found a song called: Dialated. I specifically liked this hardstyle song, because I really like the melody and I think that that is an important part for a song in this genre. For me, this song best represented what a general hardstyle song should sound like and I think a general hardstyle song best helps me in the research to find the differences and similarities between hardstyle and trance. 
+
+**Track 2**
+
+For the trance track I chose a song called: Faraway. I really liked this song, because right at the start you can identify that it is a trance song. So the trance sound became really clear from the song and I think that that is really good for the analysis. I also thought that the melody and singing in the track were really nice and therefore I think it is a really god song. 
+
+I have added both songs to the portfolio so that you can listen to it when you read the analysis. Or you can just start listening to it now, because it are really nice songs. 
+
+
+# Track-level features pagina
+
+On this tab I will do the analysis on different features of the tracks compared to the tracks from the class corpus. I have made graphs that show the distribution of the different songs in the class corpus based on tempo and arousal.
+
+
+ **Bpm graph**
+
+In the graphs you can also see my tracks in comparison to the other tracks. The hardstyle track is in red and the trance track is in blue. From the graphs you can conclude that the hardstyle and trance song both have a high bpm compared to the other tracks from the class corpus. The hardstyle track has a bpm 125, while the trance track has a hardstyle track of 120. So the hardstyle track has a little higher bpm than the trance track, but this was expected, since hardstyle has most of the time a higher bpm than trance. 
+
+
+
+```{r, fig.width=8, fig.height=8}
+
+library(ggplot2)
+library(readr)
+library(dplyr)
+
+# Laad de data
+aisc2024 <- read_csv("compmus2025 3.csv")
+
+# Voeg een nieuwe kolom toe voor de kleur van de punten/balken (highlight voor jouw tracks)
+aisc2024$highlight <- ifelse(aisc2024$filename == "mette-l-1", "red", 
+                              ifelse(aisc2024$filename == "mette-l-2", "blue", "normal"))
+
+# Samenvatting van de data
+aisc2024 |> 
+  summarise(
+    mean_tempo = mean(tempo),
+    sd_tempo = sd(tempo),
+    median_tempo = median(tempo),
+    mad_tempo = mad(tempo)
+  )
+
+# Histogram van tempo, met je specifieke tracks in het rood en blauw
+aisc2024 |> 
+  ggplot(aes(x = tempo, fill = highlight)) + 
+  geom_histogram(binwidth = 10, show.legend = FALSE) +
+  scale_fill_manual(values = c("normal" = "lightgray", "red" = "red", "blue" = "blue")) +
+  labs(title = "Verdeling van Tempo per Track", x = "Tempo (BPM)", y = "Frequentie") +
+  theme_minimal()
+```
+
+
+
+ **Arousal graph**
+
+Also, you can see that both tracks have a higher arousel compared to other tracks in the class corpus. A higher arousal normally means that the tracks have a lot of energy in them. I also expected these results, because hardstyle and trance are normally tracks with a lot of energy and therefore it is logical that they would have a higher arousal than most tracks and that is also what you see in the graph. They both score around 5.25 for arousal, while the mean of the class corpus is around 4,5 and also goes down when the tracks have a higher bpm. While the tracks for trance and hardstyle also have a high bpm and a high arousal. This is logical, because hardstyle and trance are genres that have a high bpm, but most of the time also have a very energetic and positive sound with a lot of instrumental variation, so it is right that the arousal is high and the bpm is also high. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ```{r}
-source("compmus.R")
+# Scatter plot van tempo en arousal, met je specifieke tracks in het rood en blauw
+aisc2024 |> 
+  ggplot(aes(x = tempo, y = arousal, color = highlight)) + 
+  geom_point() + 
+  geom_smooth() +
+  scale_color_manual(values = c("normal" = "gray", "red" = "red", "blue" = "blue")) +
+  labs(title = "Tempo vs Arousal per Track", x = "Tempo (BPM)", y = "Arousal") +
+  theme_minimal()
+
+
+# Scatter plot met aangepaste puntgrootte en kleur, met je specifieke tracks in het rood en blauw
+aisc2024 |> 
+  ggplot(aes(x = tempo, y = arousal, size = instrumentalness, colour = highlight)) + 
+  geom_point() + 
+  geom_rug(linewidth = 0.1) + 
+  scale_colour_manual(values = c("normal" = "gray", "red" = "red", "blue" = "blue")) +
+  scale_size_continuous(trans = "exp", guide = "none") +
+  labs(title = "Tempo vs Arousal met Instrumentalness", x = "Tempo (BPM)", y = "Arousal") +
+  theme_light() +
+  scale_x_continuous(
+    limits = c(50, 200),
+    breaks = c(50, 100, 150, 200), 
+    minor_breaks = NULL
+  ) +
+  scale_y_continuous(
+    limits = c(1, 9),
+    breaks = c(1, 5, 9),
+    minor_breaks = NULL
+  ) +
+  labs(x = "Tempo", y = "Arousal", colour = "Highlight Tracks")
+```
+
+
+# Chroma features pagina
+
+**Chroma features**
+
+
+In this tab I am going to analyse the tracks on the chroma features. The chroma features represent the distribution of pitch classes in a track, independent of octave. They provide insights into the tonality and harmony of music, highlighting dominant notes or chords. 
+
+
+
+
+In this first graph you can see the different pitch classes in the tracks, green means that that tone is used on the time it corresponds with in the graph. Blue means that the tone is not used on the time. 
+
+
+The first graph shows the hardstyle track, while the second graph shows the trance track. In both graphs you can see a clear pattern of chords, you can see that every two rows there is more green, and that every few seconds tones are repeated. This is because some chords come back and in a track you often have a pattern of chords that is followed. Also when A is used it is often so that A# is not used, because this does not sound really harmonic. And hardstyle and trance most of the time sound really clean and harmonic. So that can explain why you see more green every two rows, so that you skip the half tones if the whole tones are being used. 
+
+
+
+There are also differences between the tracks. In the hardstyle track you see that the green is more evenly divided over the graph, while in the trance track there is a lot of green in the most upper row of the graph, that is the B row. This can be explained by that in hardstyle there are often a lot of layers used on top of each other to create the full sound, that is why a lot of different tones are used every second, also the tones switch very fast, that is why you can see a kind of evenly distributed graph with small green parts all over the graph. In this trance track there is a lot of use of the tone B, this can be because the track just uses a lot of that notes. I also think that in hardstyle there is more layering and therefore more different tones, than in trance. In trance there may be less layering and more repeating tones, because there is a constant bass rolling most of the time, and this bass is not made of a lot of different tones I think, that can explain why there is a constant B during the tracks. 
+
+
+
+
+```{r}
 library(tidyverse)
-library("rlang")
+source("compmus.R")
+"features/mette-l-1.json" |>                           # Change the track
+  compmus_chroma(norm = "identity") |>                 # Change the norm
+  ggplot(aes(x = time, y = pc, fill = value)) + 
+  geom_raster() +
+  scale_y_continuous(
+    breaks = 0:11,
+    minor_breaks = NULL,
+    labels = c(
+                "C", "C#|Db", "D", "D#|Eb",
+                "E", "F", "F#|Gb", "G",
+                "G#|Ab", "A", "A#|Bb", "B"
+              )
+  ) +
+  scale_fill_viridis_c(guide = "none") +               # Change the colours?
+  labs(x = "Time (s)", y = NULL, fill = NULL) +
+  theme_classic()  
+
+"features/mette-l-2.json" |>                           # Change the track
+  compmus_chroma(norm = "identity") |>                 # Change the norm
+  ggplot(aes(x = time, y = pc, fill = value)) + 
+  geom_raster() +
+  scale_y_continuous(
+    breaks = 0:11,
+    minor_breaks = NULL,
+    labels = c(
+                "C", "C#|Db", "D", "D#|Eb",
+                "E", "F", "F#|Gb", "G",
+                "G#|Ab", "A", "A#|Bb", "B"
+              )
+  ) +
+  scale_fill_viridis_c(guide = "none") +               # Change the colours?
+  labs(x = "Time (s)", y = NULL, fill = NULL) +
+  theme_classic()  
+
+```
+
+**Self-similarity graphs**
+
+The graphs show the self-similarity of the two tracks based on their chroma features. The self-similarity is calculated by measuring the Euclidean distance between the chroma fields of the music, providing a visual representation of how the music develops over time in terms of changes in pitch and harmonies. Darker colors indicate low self-similarity, meaning there are greater changes in harmonies or chords, while lighter colors suggest more consistent similarities between different sections of the track. In the hardstyle track, you see many small blue squares, while in the trance track, there are slightly larger blue squares. This means that the hardstyle track has shorter and faster changes in harmony than trance. However, both tracks show a fair amount of green in the graph, indicating a high self-similarity between different time segments of the track. Therefore, both tracks are quite similar in terms of harmony throughout the track. This is due to trance having many long, repetitive sections where the harmony often stays the same, as well as the frequent repetition of a nearly constant rolling bassline. In hardstyle, many melodies and basslines are repeated, which can also explain the high self-similarity in harmony.
+
+
+
+
+
+```{r}
+"features/mette-l-1.json" |>                           # Change the track
+  compmus_chroma(norm = "identity") |>                 # Change the norm
+  compmus_self_similarity(
+    feature = pc,
+    distance = "euclidean"                             # Change the distance
+  ) |>   
+  ggplot(aes(x = xtime, y = ytime, fill = d)) + 
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +               # Change the colours?
+  labs(x = "Time (s)", y = NULL, fill = NULL) +
+  theme_classic() 
+
+"features/mette-l-2.json" |>                           # Change the track
+  compmus_chroma(norm = "identity") |>                 # Change the norm
+  compmus_self_similarity(
+    feature = pc,
+    distance = "euclidean"                             # Change the distance
+  ) |>   
+  ggplot(aes(x = xtime, y = ytime, fill = d)) + 
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +               # Change the colours?
+  labs(x = "Time (s)", y = NULL, fill = NULL) +
+  theme_classic() 
+```
+
+# Loudness pagina
+
+**Loudness features**
+On this tab I am going to analyse the loudness of both tracks. You can see graphs of the Energy Novelty and Spectral novelty of both tracks. The energy novelty shows the change of energy during the track over time. If you can see a sudden change in the Energy Novelty track, this probably means that the energy of the track changed, so this can mean a change in volume or intensity.  
+
+
+**Energy novelty**
+
+
+At the hardstyle graph you can see a high peak at 50 seconds and at 115 seconds. Also exactly 25 seconds before those peaks, so at 25 and 90 seconds you can see a small peak. This shows a pattern in the track. If you listen to the music than you can hear that at 25 seconds the melody starts playing for the first time without the filter (the filter was uses as intro, to build up to the song), this is a change in energy that you can see on the graph. And the peace at 50 seconds can also be explained, the drop starts there, so the kick starts playing with the melody, this also gives a lot of energy, so that explains the peak in the graph. Then on 90 seconds the melody starts playing again and on 115 seconds the melody with the kick starts playing again, so this can explain the pattern and energy changes in the hardstyle track. 
+
+At the trance graph you can first see a really high peak and then it kind of stays low, with small peaks at 45 seconds and 80 seconds. The big pack in the beginning can be explained with that the music suddenly starts playing after a few seconds, this is obviously a major energy change and therefore you can see the large peak. At 45 seconds different instruments start playing and the build up starts and then a little bit after 80 seconds the drop starts, this can explain the peaks in the graph. After this the energy graph does not have any high peaks, this can be explained by that the trance track stays a bit on the same level and therefore has not any major shifts. This is typical for trance tracks, since they do not have major changes but more global changes throughout the track. 
+
+
+If you compare both tracks you can really see that the hardstyle tracks has way more energy overall, you can also see that hardstyle has more an energy pattern while in trance there is not really a pattern in the energy graph. It is interesting that the trance graph does have the highest peak, even higher than the hardstyle peaks. 
+
+
+
+
+
+
+
+
+```{r}
+"features/mette-l-1.json" |>
+  compmus_energy_novelty() |> 
+  ggplot(aes(t, novelty)) +
+  geom_line() +
+  theme_minimal() +
+  labs(x = "Time (s)", y = "Energy Novelty")
+
+"features/mette-l-2.json" |>
+  compmus_energy_novelty() |> 
+  ggplot(aes(t, novelty)) +
+  geom_line() +
+  theme_minimal() +
+  labs(x = "Time (s)", y = "Energy Novelty")
+
+```
+
+
+**Spectral novelty**
+In these graphs, you can see the spectral novelty of the tracks. Spectral novelty is a measure that indicates the change in the frequency spectrum of a sound over time. It can be used to identify when new, unusual, or prominent frequencies occur in a track, which is often associated with musical changes such as a transition, a change in instrumentation, or an unexpected twist in the music.
+
+You can see that the spectral novelty of the trance track has a broader band than the hardstyle track, meaning there is more variation in the frequencies present in the trance track. Trance is often more repetitive and progressive, but it also contains longer progressions and changes in texture and frequencies, which can cause larger fluctuations in spectral novelty. You also see an upward trend in both graphs, which means that there is an increase in spectral novelty over time. This could indicate that the music is building up, for example. Both graphs are generally just below 0.10, with occasional outliers reaching towards 0.15, and in the case of hardstyle, the outliers even reach up to 0.20. This means that larger changes in the frequency spectrum occur in hardstyle compared to trance. Hardstyle is often more explosive than trance, and this can be seen in the spectral novelty with higher peaks in hardstyle than in trance.
+
+```{r}
+
+"features/mette-l-1.json" |>
+  compmus_spectral_novelty() |> 
+  ggplot(aes(t, novelty)) +
+  geom_line() +
+  theme_minimal() +
+  labs(x = "Time (s)", y = "Spectral Novelty")
+
+"features/mette-l-2.json" |>
+  compmus_spectral_novelty() |> 
+  ggplot(aes(t, novelty)) +
+  geom_line() +
+  theme_minimal() +
+  labs(x = "Time (s)", y = "Spectral Novelty")
+
+
+```
+
+# Timbre features pagina
+ **Timbre features**
+
+
+In this tab I am going to analyse the timbre features of the tracks. Timbre is the quality or uniqueness of a sound, it describes what makes the sound unique. For the analysis of the timbre features I am going to use Cepstograms, this are MFCC-based graphs. On this graph you can see the time on the x-axes and the MFCC coefficient number on the y-axes. 
+The different MFCC-coefficients describe the different spectral characteristics of the songs. 
+
+**MFCC**
+Both graphs show a blue colour on the lowest row of the graph, so that is coeffienct 0. Then both graphs also have a kind of yellow colour on the first row, so for the coefficient 1, and both graphs become more green after that. Both graphs almost have the same colour for the coefficients 2 till 12, but you can see a bit of more smooth area  as the coefficient increases. The higher coefficients show details about the timbre and are sensitive to subtle differences in timbre. 
+
+It looks like both graphs almost are the same, however there is a minor difference. The trance track has a bit more light green colour than the hardstyle graph, which is more bright green. This can mean that hardstyle has a little bit more energy in the higher frequences. Hardstyle is known for its aggressive kicks and sharp synths, while trance is more known for its melodies and harmonic sounds, so this can explain why the hardstyle graph is a little bit more brighter green than the trance graph.
+
+
+
+
+```{r}
+
+
+
+"features/mette-l-1.json" |>                           # Change the track
+  compmus_mfccs(norm = "identity") |>                  # Change the norm
+  compmus_self_similarity(
+    feature = mfcc,
+    distance = "euclidean"                             # Change the distance
+  ) |>   
+  ggplot(aes(x = xtime, y = ytime, fill = d)) + 
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +               # Change the colours?
+  labs(x = "Time (s)", y = NULL, fill = NULL) +
+  theme_classic()
+
+"features/mette-l-2.json" |>                           # Change the track
+  compmus_mfccs(norm = "identity") |>                  # Change the norm
+  compmus_self_similarity(
+    feature = mfcc,
+    distance = "euclidean"                             # Change the distance
+  ) |>   
+  ggplot(aes(x = xtime, y = ytime, fill = d)) + 
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +               # Change the colours?
+  labs(x = "Time (s)", y = NULL, fill = NULL) +
+  theme_classic()
+```
+
+
+
+
+**Self-similarity**
+
+The other two graphs are the self-similarity graphs based on the MFCCs, so the timbre qualities of the tracks. This means that the graphs show how similar parts of the tracks are based on the timbre of the track. 
+
+The first graph is the self similarity graph of the hardstyle track. In this graph you can see a lot of blue squares with light blue horizontal and vertical lines that outline the squares. Also at the edges of the graph you can see more green and yellow colors. The blue colour means that there is no similarity between the segments. While the light blue lines means that there is a really strong similarity. You can see that the light lines are the most bright just after 50 seconds and around 90 seconds. When you listen to the music you can hear that on those points the melody starts with a nice kick, this can explain the similarity on those points. And the green/yellow lines around the edges can be explained by that they represent the intro and outro. You can hear that the intro starts with a soft sound that gradually increases in intensity, the outro uses kind of the same thing but the other way around, it slowly fades the sound. This can explain why the edges are more yellow/green.
+
+In the trance graph you can ee that the graph is way more blue, and does not have really large squares, like the hardstyle graph. You can see a kind of light blue plus that is stretched over the graph in the beginning, from around 40 seconds to 70 seconds. If you listen to the track you can hear that this is a calmer part of the track, there is less different sounds and less energy than the rest of the track. It is kind of more mellow part of the track where you can hear the piano and it is the break between the more energetic parts. This can explain why there is more similarity at this time in the graph, because it is about the same part in the song.
+
+The differences between the two graphs are that hardstyle has a more variated timbre and clear intro/outro segments with a gradual transition, while trance has more subtle changes in timbre, with a calm break. This is logic if you look at the genres, because hardstyle is more energetic with a lot of structure changes and trance has often more subtle transitions and longer sometimes more calmer sections.
+
+
+```{r}
+
+"features/mette-l-1.json" |>                           # Change the track
+  compmus_mfccs(norm = "identity") |>                  # Change the norm
+  ggplot(aes(x = time, y = mfcc, fill = value)) + 
+  geom_raster() +
+  scale_y_continuous(
+    breaks = 0:12,
+    minor_breaks = NULL,
+  ) +
+  scale_fill_viridis_c(guide = "none") +               # Change the colours?
+  labs(x = "Time (s)", y = "Coefficient Number", fill = NULL) +
+  theme_classic()  
+
+"features/mette-l-2.json" |>                           # Change the track
+  compmus_mfccs(norm = "identity") |>                  # Change the norm
+  ggplot(aes(x = time, y = mfcc, fill = value)) + 
+  geom_raster() +
+  scale_y_continuous(
+    breaks = 0:12,
+    minor_breaks = NULL,
+  ) +
+  scale_fill_viridis_c(guide = "none") +               # Change the colours?
+  labs(x = "Time (s)", y = "Coefficient Number", fill = NULL) +
+  theme_classic()   
+
+```
+
+
+# Temporal features pagina
+
+**Temporal features**
+
+A tempogram shows how the tempo (BPM) changes over time. You can read whether a track has a stable tempo or contains tempo changes. A cyclic tempogram emphasizes rhythmic patterns and recurring elements rather than absolute tempo changes. This helps in recognizing grooves, syncopations, or polyrhythms in a track.
+
+The tempogram displays BPM changes and tempo stability. The cyclic tempogram highlights recurring rhythmic structures and patterns.
+
+You can see that the trance track has straight lines, indicating no change in tempo. This is typical for EDM music, as the tempo is often constant. When you look at the cyclic tempogram of the trance track, you can see the line slightly enlarged, making any changes in the line more visible. Here, the line is completely straight, but at the very end, you see the line drop slightly. This could be because at the end of the track, the sound gradually fades out, and this fading can explain the fluctuation. The fading of the sound reduces higher frequencies, and these higher frequencies help mark the tempo. Therefore, there might be a small change in the tempogram at that point.
+
+In the hardstyle graph, you see that there are almost only straight lines, but there is a small fluctuation at the beginning and the end. If you then look at the cyclic tempogram, you can see these fluctuations better, as they are slightly amplified. You can notice a small fluctuation around 10 seconds and a small dip around 130 seconds. When you listen to the music, these are the moments when transitions occur. For the first 10 seconds, there is a filter applied to the track that fades after 10 seconds, and at 130 seconds, there is a transition to a harder drop. This could explain the small changes in the tempogram.
+
+```{r}
+
+
+"features/mette-l-1.json" |>
+  compmus_tempogram(window_size = 8, hop_size = 1, cyclic = FALSE) |>
+  ggplot(aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
+
+"features/mette-l-2.json" |>
+  compmus_tempogram(window_size = 8, hop_size = 1, cyclic = FALSE) |>
+  ggplot(aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
+
+"features/mette-l-1.json" |>
+  compmus_tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) |>
+  ggplot(aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
+
+"features/mette-l-2.json" |>
+  compmus_tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) |>
+  ggplot(aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
+
+```
+
+
+# Clustering pagina
+
+**Clustering**
+
+On this tab, I am looking at hierarchical clustering. In the graph, similar tracks have been grouped into clusters. You can determine which tracks are most similar by examining the structure of the dendrogram:
+
+- Tracks that are close together and share a branch are the most similar.
+- The lower the split in the tree, the greater the similarity between the tracks.
+
+
+The clustering is based on the following musical features:
+
+- Arousal
+- Danceability
+- Instrumentalness
+- Tempo
+- Valence
+My tracks are highlighted in red in the graph. They have been clustered together, meaning they are the most similar to each other within this dataset. This was expected, as I personally find that the hardstyle and trance genres have a lot in common. This was also confirmed in earlier analyses in my portfolio, where the tracks showed strong similarities in many features.
+
+Additionally, you can see that a cluster later splits off the track ‘nora-k-1’. This suggests that this track also shares some characteristics with my tracks. However, when you listen to ‘nora-k-1,’ you can hear that it belongs to a different genre than hardstyle and trance. Still, it features a heavy bass and an EDM sound, which might explain why it appears relatively close to my tracks in the clustering. In terms of genre, the similarity is limited, but in terms of sound, there may be some overlap.
+
+
+
+```{r, fig.width=12, fig.height=4}
+# Laad benodigde libraries
+library(tidyverse)
 library(tidymodels)
-library(kknn)
+library(ggdendro)
+library(heatmaply)
 
+# Laad compmus functies
+source("compmus.R")
 
-get_conf_mat <- function(fit) {
-  outcome <- .get_tune_outcome_names(fit)
-  fit |> 
-    collect_predictions() |> 
-    conf_mat(truth = outcome, estimate = .pred_class)
-}  
+# Functies voor confusion matrix en precisie/recall
+get_conf_mat <- function(fit) { 
+  outcome <- .get_tune_outcome_names(fit) 
+  fit |> collect_predictions() |> conf_mat(truth = outcome, estimate = .pred_class) 
+}
 
-get_pr <- function(fit) {
-  fit |> 
-    conf_mat_resampled() |> 
+get_pr <- function(fit) { 
+  fit |> conf_mat_resampled() |> 
     group_by(Prediction) |> mutate(precision = Freq / sum(Freq)) |> 
     group_by(Truth) |> mutate(recall = Freq / sum(Freq)) |> 
     ungroup() |> filter(Prediction == Truth) |> 
-    select(class = Prediction, precision, recall)
-}  
+    select(class = Prediction, precision, recall) 
+}
 
+# Data inladen
 compmus2025 <- read_csv("compmus2025 3.csv")
 
-cluster_juice <-
-  recipe(
-    filename ~
-      arousal +
-      danceability +
-      instrumentalness +
-      tempo +
-      valence,
-    data = compmus2025
-  ) |>
-  step_center(all_predictors()) |>
-  step_scale(all_predictors()) |> 
-  # step_range(all_predictors()) |> 
-  prep(compmus2025) |>
-  juice() |>
-  column_to_rownames("filename")
+# **Clustering voorbereiden**
+cluster_juice <- recipe(
+  filename ~ arousal + danceability + instrumentalness + tempo + valence, # Alleen deze features worden gebruikt!
+  data = compmus2025
+) |> step_center(all_predictors()) |> step_scale(all_predictors()) |> 
+  prep(compmus2025) |> juice() |> column_to_rownames("filename") # Zet filename als rownames voor clustering
 
+# **Afstandsmatrix berekenen**
 compmus_dist <- dist(cluster_juice, method = "euclidean")
 
-compmus_dist |> 
-  hclust(method = "single") |> # Try single, average, and complete.
-  dendro_data() |>
-  ggdendrogram()
+# **Hiërarchische clustering uitvoeren**
+hc <- hclust(compmus_dist, method = "single") # Probeer ook 'average' of 'complete'
 
-heatmaply(
-  cluster_juice,
-  hclustfun = hclust,
-  hclust_method = "average",  # Change for single, average, or complete linkage.
-  dist_method = "euclidean"
-)
+# **Dendrogram voorbereiden**
+dendro_data <- dendro_data(hc)
+labels_df <- dendro_data$labels
 
-compmus2025_filtered <- 
-  compmus2025 |> filter(!is.na(ai)) |> 
+# Definieer je eigen tracks
+custom_tracks <- c("mette-l-1", "mette-l-2")
+
+# Voeg een kleur toe: mette-l-1 en mette-l-2 = rood, de rest zwart
+labels_df <- labels_df |> 
+  mutate(color = ifelse(label %in% custom_tracks, "red", "black"))
+
+ggplot() + 
+  geom_segment(data = dendro_data$segments, aes(x = x, y = y, xend = xend, yend = yend), color = "black") +
+  geom_text(data = labels_df, aes(x = x, y = y, label = label, color = color), 
+            angle = 90, hjust = 1, vjust = 1, size = 4) + # vjust aangepast zodat labels beter zichtbaar zijn
+  scale_color_identity() + 
+  theme_minimal() +
+  theme(
+    plot.margin = margin(10, 100, 50, 10),  # Extra ruimte rechts voor labels
+    axis.text.x = element_blank(),  # Verwijder standaard x-as labels om overlap te voorkomen
+    axis.ticks.x = element_blank()   # Verwijder x-as ticks
+  ) +
+  coord_cartesian(clip = "off")  # Voorkomt dat labels worden afgeknipt
+
+```
+
+
+# Classification/regression pagina
+
+**Classification/Regression**
+
+In this tab, I will look at the difference between AI and non-AI tracks from the class corpus.
+
+
+
+In the first graph, you can see how well the model distinguishes between AI and non-AI songs. You can see that the precision for AI tracks is 0.636 and the recall is 0.571. The precision for non-AI tracks is 0.543 and the recall is 0.610. Precision indicates how many of the tracks classified as AI are actually AI, while recall shows how many of the actual AI tracks are correctly identified as AI. AI tracks have higher precision, meaning that when the model predicts a track as AI, it is more likely to be correct. Non-AI tracks have higher recall, meaning the model is better at identifying all the actual non-AI tracks.
+
+
+**Random forest**
+The second graph, the random forest graph, shows which features contribute most to the classification. In the graph, you can see that arousal and instrumentalness have the highest values and are therefore the most important for classifying the tracks as AI or non-AI. Next come danceability and valence. The feature that is least important for classification is tempo, which makes sense because tempo doesn't really affect whether a track is AI or not. AI tracks can have any tempo.
+
+**Scatterplot**
+
+The last graph is a scatterplot of valence vs. arousal. Each dot represents a track, colored based on AI/non-AI. The x-axis is valence, and the y-axis is arousal. The dot size represents the tempo of the music. In the graph, you can see that the yellow dots are more spread out, while the purple dots are more concentrated in the middle and less spread out. This may suggest that AI music varies less in extreme values of these features and tends to have more average properties for arousal and valence. This could mean that AI music is more general and does not have many extreme characteristics.
+
+
+
+
+
+
+
+
+
+
+```{r}
+
+library(tidyverse)
+
+library(tidymodels)
+
+library(ggdendro)
+library(heatmaply)
+
+source("compmus.R")
+compmus2025 <- read_csv("compmus2025 3.csv")
+compmus_cv <- read_csv("compmus2025 3.csv")
+
+# Filter de data en creëer de 'ai' variabele
+compmus2025_filtered <- compmus2025 |> 
+  filter(!is.na(ai)) |> 
   mutate(ai = factor(if_else(ai, "AI", "Non-AI")))
+
+# Controleer de structuur van de dataset
+glimpse(compmus2025)
+
+# Maak een 5-voudige cross-validatie
+compmus_cv <- vfold_cv(compmus2025_filtered, v = 5)
 
 classification_recipe <-
   recipe(
@@ -127,10 +639,7 @@ classification_recipe <-
     data = compmus2025_filtered
   ) |>
   step_center(all_predictors()) |>
-  step_scale(all_predictors())      # Converts to z-scores.
-  # step_range(all_predictors())    # Sets range to [0, 1].
-
-compmus_cv <- compmus2025_filtered |> vfold_cv(5)
+  step_scale(all_predictors()) 
 
 knn_model <-
   nearest_neighbor(neighbors = 1) |>
@@ -144,7 +653,7 @@ classification_knn <-
 
 classification_knn |> get_conf_mat()
 
-classification_knn |> get_conf_mat() |> autoplot(type = "mosaic")
+
 
 classification_knn |> get_conf_mat() |> autoplot(type = "heatmap")
 
@@ -179,7 +688,6 @@ workflow() |>
   theme_minimal() +
   labs(x = NULL, y = "Importance")
 
-
 compmus2025_filtered |>
   ggplot(aes(x = valence, y = arousal, colour = ai, size = tempo)) +
   geom_point(alpha = 0.8) +
@@ -192,111 +700,31 @@ compmus2025_filtered |>
   )
 ```
 
-```{r}
-# Laad de benodigde libraries
+# Contribution pagina
 
 
-library(tidyverse)
+In this portfolio, I conducted an analysis to explore the similarities and differences between the genres hardstyle and trance. I selected one track for each genre that I believed represented the genre well.
 
-library(viridis)
+First, I examined the track-level features and compared them to the other tracks in the class corpus. The analysis showed that the trance and hardstyle tracks had a higher BPM and arousal compared to the other tracks in the corpus. The hardstyle track had a slightly higher BPM than the trance track. Next, I analyzed the chroma features of both tracks. The results indicated that while both tracks had a relatively wide tonal distribution, hardstyle featured more different tones, whereas trance predominantly used B.
 
-# Stap 1: Normaliseer de chroma data
-chroma_data <- "features/mette-l-1.json" |> 
-  compmus_chroma(norm = "identity")  # Normaliseer de chroma data eerst
+I then looked at the loudness of both tracks by analyzing the energy and spectral novelty graphs. The results showed that hardstyle had more energy than trance and that a clear pattern in energy was visible in the hardstyle track, which was not the case in the trance track. Additionally, the analysis revealed that trance had more variation in frequencies than hardstyle, while hardstyle exhibited larger changes in frequencies than trance.
 
-# Stap 2: Maak de keygram of chordogram door templates te matchen
-result <- chroma_data |> 
-  compmus_match_pitch_templates(chord_templates, norm = "identity", distance = "cosine")
+Next, I examined the timbre features, which showed that hardstyle had slightly more energy in the higher frequencies than trance. However, overall, the MFCC of both tracks was quite similar. The results also showed that hardstyle had a more varied timbre than trance.
 
-# Stap 3: Plot de resultaten (keygram of chordogram)
-ggplot(result, aes(x = time, y = name, fill = d)) + 
-  geom_tile() +               # Gebruik geom_tile voor een chordogram
-  scale_fill_viridis_c(guide = "none") + 
-  labs(x = "Time (s)", y = "Template", fill = NULL) +
-  theme_classic()
+On the temporal features page, I observed that both tracks had an almost entirely stable tempo. Hardstyle had two small dips, but overall, the tempo remained nearly the same.
 
-"features/mette-l-1.json" |>
-  compmus_energy_novelty() |> 
-  ggplot(aes(t, novelty)) +
-  geom_line() +
-  theme_minimal() +
-  labs(x = "Time (s)", y = "Energy Novelty")
+In the clustering analysis, I explored how the various tracks in the class corpus were grouped together. The results showed that my selected tracks were clustered together, indicating that they were very similar compared to the other tracks in the corpus.
 
-"features/mette-l-2.json" |>
-  compmus_spectral_novelty() |> 
-  ggplot(aes(t, novelty)) +
-  geom_line() +
-  theme_minimal() +
-  labs(x = "Time (s)", y = "Spectral Novelty")
+On the final tab, I analyzed how well a model could distinguish between AI-generated and non-AI tracks. The results showed that when the model predicted a track as AI-generated, it was more likely to be correct. Additionally, the model was better at correctly identifying non-AI tracks. The analysis also revealed that AI-generated tracks had less extreme values in valence and arousal and tended to have more general values compared to non-AI tracks.
 
-"features/mette-l-1.json" |>
-  compmus_tempogram(window_size = 8, hop_size = 1, cyclic = FALSE) |>
-  ggplot(aes(x = time, y = bpm, fill = power)) +
-  geom_raster() +
-  scale_fill_viridis_c(guide = "none") +
-  labs(x = "Time (s)", y = "Tempo (BPM)") +
-  theme_classic()
+The main goal of this portfolio was to investigate whether trance and hardstyle are similar. Personally, I have always felt that they are quite similar, as both genres give me a lot of energy, and their melodies and sounds can strongly impact me. The portfolio clearly demonstrated that these genres do share many similarities. This was particularly evident in the clustering analysis, where the model placed both tracks in the same cluster. Additionally, the tracks were quite similar in terms of BPM and energy.
 
-"features/mette-l-2.json" |>
-  compmus_tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) |>
-  ggplot(aes(x = time, y = bpm, fill = power)) +
-  geom_raster() +
-  scale_fill_viridis_c(guide = "none") +
-  labs(x = "Time (s)", y = "Tempo (BPM)") +
-  theme_classic()
-```
+I believe the biggest differences were in the chroma features, where hardstyle had a more diverse tonal distribution, while trance relied more on B. Furthermore, hardstyle had slightly more energy fluctuations than trance, and the spectral novelty analysis showed that trance had more frequency variation than hardstyle. The timbre features of both tracks were largely similar, except that hardstyle had slightly more energy in the higher frequencies than trance.
 
-Column {data-width=350}
------------------------------------------------------------------------
-
-### Visualisation
-
-```{r}
-
-# Laad de benodigde libraries
-library(ggplot2)
-
-# Laad je muziekdata (zorg ervoor dat het pad naar je CSV correct is)
-music_data <- read.csv("/Users/mette/Downloads/compmus2025 2.csv")
-
-# Voeg een nieuwe kolom toe voor de kleur van de balken
-music_data$highlight <- ifelse(music_data$filename %in% c("mette-l-1", "mette-l-2"), "highlight", "normal")
-
-# Maak de grafiek
-ggplot(music_data, aes(x = filename, y = tempo, fill = highlight)) +
-  geom_bar(stat = "identity", show.legend = FALSE) +
-  labs(title = "Tempo per Track", y = "Tempo (BPM)", x = "Track") +
-  theme_minimal() +
-  scale_fill_manual(values = c("normal" = "lightgray", "highlight" = "red"))  # Kleur je tracks in het rood
-
-```
-
-### Conclusion
-
-In the visualisation you can see the tempo of my tracks compared to the rest of the tracks. So you can see that the tempo of the tracks is around 100 bpm, that is around the average if you look at the visualisation. 
-
-```{r}
-ls() 
-"features/mette-l-1.json" |>                           # Change the track
-  compmus_chroma(norm = "identity") |>                 # Change the norm
-  ggplot(aes(x = time, y = pc, fill = value)) + 
-  geom_raster() +
-  scale_y_continuous(
-    breaks = 0:11,
-    minor_breaks = NULL,
-    labels = c(
-                "C", "C#|Db", "D", "D#|Eb",
-                "E", "F", "F#|Gb", "G",
-                "G#|Ab", "A", "A#|Bb", "B"
-              )
-  ) +
-  scale_fill_viridis_c(guide = "none") +               # Change the colours?
-  labs(x = "Time (s)", y = NULL, fill = NULL) +
-  theme_classic()      
-```
-### New Visualisations
-
-```{r}
+Overall, I conclude that these tracks are indeed quite similar, particularly in terms of tempo and energy, while their chroma features differed the most. I really enjoyed creating this portfolio and analyzing music, and I hope you enjoyed reading my portfolio and listening to my music taste.
 
 
-```
+
+
+
+
