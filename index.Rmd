@@ -9,6 +9,7 @@ css: "style.css"
 ---
 
 ```{r}
+library(shiny)
 tags$head(
   tags$style(HTML("
     /* Verander de kleur van de navigatiebalk naar rood */
