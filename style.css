@@ -23,5 +23,5 @@
 /* Zorg ervoor dat de tekstkleur van de knoppen verandert naar zwart als ze geselecteerd zijn (actief) */
 .navbar .navbar-nav > li.active > a {
   background-color: #ff9999 !important;  /* Lichtrood achtergrond als geselecteerd */
-  color: black !important;  /* Zwarte tekst op geselecteerde knop */
+  color: black !important;  /* Zwarte tekst op geselecteerde knoppen */
 }
